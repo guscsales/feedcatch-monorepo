@@ -1,3 +1,4 @@
+import { StatusCodes } from '@/helpers/enums/status-codes';
 import {
   CanActivate,
   ExecutionContext,
@@ -20,6 +21,11 @@ export class SchemaValidatorGuard implements CanActivate {
       SCHEMA_VALIDATOR_KEY,
       context.getHandler(),
     );
+
+    if (!schemaToValidate) {
+      return true;
+    }
+
     const http = context.switchToHttp();
     const { body } = http.getRequest();
     const res = http.getResponse();
@@ -28,7 +34,7 @@ export class SchemaValidatorGuard implements CanActivate {
       schemaToValidate.parse(body);
       return true;
     } catch (e) {
-      res.json({ errors: e?.issues || [] });
+      res.status(StatusCodes.BadRequest).json({ errors: e?.issues || [] });
       return false;
     }
   }
