@@ -10,7 +10,7 @@ datasource db {
 
 model Project {
   id        String   @id @default(uuid())
-  slug      String   @unique
+  slug      String
   projectId String   @unique
   name      String
   createdAt DateTime @default(now())

@@ -16,7 +16,7 @@ export class ProjectService {
   }
 
   async getBySlug({ slug }: { slug: string }) {
-    const data = await this.databaseService.project.findUnique({
+    const data = await this.databaseService.project.findFirst({
       where: { slug },
     });
 
@@ -57,6 +57,29 @@ export class ProjectService {
     });
 
     this.logger.log(`Project ${data.id} created!`);
+
+    return data;
+  }
+
+  async update({ id, name }: { id: string; name: string }) {
+    const slug = normalizeString(name);
+    const slugExists = await this.getBySlug({ slug });
+
+    if (slugExists) {
+      const e = new NotAcceptableException('Project slug already exists');
+      this.logger.error(e.message);
+      throw e;
+    }
+
+    const data = await this.databaseService.project.update({
+      where: { id },
+      data: {
+        name,
+        slug,
+      },
+    });
+
+    this.logger.log(`Project ${data.id} updated!`);
 
     return data;
   }
