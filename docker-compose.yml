@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  feedcatch-main-database:
+    image: postgres
+    restart: always
+    container_name: feedcatch-main-database
+    environment:
+      POSTGRES_DB: 'feedcatch_main'
+      POSTGRES_USER: 'admin'
+      POSTGRES_PASSWORD: '12345678'
+    ports:
+      - '5433:5433'
+    expose:
+      - '5433'
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
