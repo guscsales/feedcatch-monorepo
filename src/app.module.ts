@@ -6,6 +6,8 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { SchemaValidatorGuard } from '@/modules/shared/validators/schema-validator.decorator';
 import { ProjectsModule } from './modules/projects/projects.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -15,6 +17,8 @@ import { ProjectsModule } from './modules/projects/projects.module';
       limit: 10,
     }),
     ProjectsModule,
+    AuthModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [

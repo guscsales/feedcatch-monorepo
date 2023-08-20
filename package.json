@@ -30,9 +30,11 @@
     "@nestjs/throttler": "^4.2.1",
     "@prisma/client": "^5.1.1",
     "cookie-parser": "^1.4.6",
+    "date-fns": "^2.30.0",
     "helmet": "^7.0.0",
     "ncsrf": "^1.0.10",
     "reflect-metadata": "^0.1.13",
+    "resend": "^1.0.0",
     "rxjs": "^7.8.1",
     "zod": "^3.22.2"
   },
