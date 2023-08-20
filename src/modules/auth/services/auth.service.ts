@@ -2,7 +2,8 @@ import rand from '@/helpers/services/rand';
 import { DatabaseService } from '@/modules/shared/database/database.service';
 import { UserService } from '@/modules/users/services/user.service';
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-import { addDays, isBefore } from 'date-fns';
+import { addDays, getSeconds, isBefore } from 'date-fns';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
@@ -11,6 +12,7 @@ export class AuthService {
   constructor(
     private databaseService: DatabaseService,
     private userService: UserService,
+    private jwtService: JwtService,
   ) {}
 
   async authenticateFromMagicLink({ token }: { token: string }) {
@@ -33,13 +35,14 @@ export class AuthService {
       where: { token },
     });
 
-    // TODO: Implement JWT
+    const payload = { sub: data.userId };
 
-    const accessToken = 'tbd';
-    const expires = addDays(new Date(), 1);
+    const accessToken = await this.jwtService.signAsync(payload, {
+      expiresIn: '1 day',
+    });
     const refreshToken = 'tbd_2';
 
-    return { accessToken, expires, refreshToken };
+    return { accessToken, refreshToken };
   }
 
   async loginOrCreateFromMagicLink({ email }: { email: string }) {

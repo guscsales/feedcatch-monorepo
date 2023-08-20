@@ -1,13 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { AppController } from '@/app.controller';
+import { AppService } from '@/app.service';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
-import { SchemaValidatorGuard } from '@/modules/shared/validators/schema-validator.decorator';
-import { ProjectsModule } from './modules/projects/projects.module';
-import { AuthModule } from './modules/auth/auth.module';
-import { UsersModule } from './modules/users/users.module';
+import { SchemaValidatorGuard } from '@/modules/shared/decorators/schema-validator.decorator';
+import { ProjectsModule } from '@/modules/projects/projects.module';
+import { AuthModule } from '@/modules/auth/auth.module';
+import { UsersModule } from '@/modules/users/users.module';
+import { JwtModule } from '@nestjs/jwt';
+import { AuthValidationGuard } from '@/modules/auth/decorators/auth-validation.decorator';
 
 @Module({
   imports: [
@@ -15,6 +17,10 @@ import { UsersModule } from './modules/users/users.module';
     ThrottlerModule.forRoot({
       ttl: 60,
       limit: 10,
+    }),
+    JwtModule.register({
+      global: true,
+      secret: process.env.AUTHENTICATION_SECRET,
     }),
     ProjectsModule,
     AuthModule,
@@ -26,6 +32,10 @@ import { UsersModule } from './modules/users/users.module';
     {
       provide: APP_GUARD,
       useClass: SchemaValidatorGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: AuthValidationGuard,
     },
   ],
 })

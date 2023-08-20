@@ -15,6 +15,14 @@ export class UserService {
     return data;
   }
 
+  async getById(id: string) {
+    const data = await this.databaseService.user.findUnique({
+      where: { id },
+    });
+
+    return data;
+  }
+
   async createOnlyWithEmail({ email }: { email: string }) {
     const userExists = await this.getByEmail(email);
 

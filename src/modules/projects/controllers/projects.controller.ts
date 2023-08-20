@@ -8,7 +8,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { ProjectService } from '@/modules/projects/services/project.service';
-import { SchemaValidator } from '@/modules/shared/validators/schema-validator.decorator';
+import { SchemaValidator } from '@/modules/shared/decorators/schema-validator.decorator';
 import { createProjectValidator } from '@/modules/projects/validators/create-project.validator';
 import { updateProjectValidator } from '@/modules/projects/validators/update-project.validator';
 
