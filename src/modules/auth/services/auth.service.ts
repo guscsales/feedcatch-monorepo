@@ -62,25 +62,26 @@ export class AuthService {
       this.logger.log(`User ${user.id} created from magic link`);
     }
 
-    await this.createToken({
+    const { token } = await this.createToken({
       user,
       type: TokenTypes.MagicLogin,
       daysToExpire: 1,
     });
 
-    //     await this.resend.emails.send({
-    //       from: process.env.EMAIL_FROM_NO_REPLY,
-    //       to: email,
-    //       subject: 'You magic link for Feedcatch',
-    //       html: `Hello,
+    await this.resend.emails.send({
+      from: `${process.env.EMAIL_FROM_TEAM_NAME} <${process.env.EMAIL_FROM_NO_REPLY}>`,
+      to: email,
+      subject: 'You login access link for Feedcatch',
+      // TODO: create a better email template
+      html: `Hello,
+<br /><br />
+your link is ready to use, to access click <a href="${process.env.WEB_APP_DOMAIN}/api/auth/magic/authenticate?token=${token}" target="_blank">here</a>.
+<br /><br />
+<strong>Feedcatch Team</strong>
+          `,
+    });
 
-    // your link is ready to use, to access click <a href="${process.env.APP_DOMAIN}/api/auth/magic/authenticate?token=${token}" target="_blank">here</a>.
-
-    // <strong>Feedcatch Team</strong>
-    //       `,
-    //     });
-
-    //     this.logger.log('Magic login email sent');
+    this.logger.log('Magic login email sent');
   }
 
   async reAuthenticateFromRefreshToken({ token }: { token: string }) {
