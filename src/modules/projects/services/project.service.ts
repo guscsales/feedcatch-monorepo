@@ -43,7 +43,7 @@ export class ProjectService {
       projectId = rand(2);
 
       const keyCount = await this.databaseService.project.count({
-        where: { projectId },
+        where: { id: projectId },
       });
       foundKeyToUse = keyCount === 0;
     }
@@ -52,9 +52,9 @@ export class ProjectService {
 
     const data = await this.databaseService.project.create({
       data: {
+        id: projectId,
         name,
         slug,
-        projectId,
         userId,
       },
     });
