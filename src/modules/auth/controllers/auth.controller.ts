@@ -27,6 +27,7 @@ export class AuthController {
     return data;
   }
 
+  @PublicRoute()
   @Post('/refresh')
   @SchemaValidator(reauthenticateFromRefreshTokenValidator)
   public async reAuthenticateFromRefreshToken(@Body('token') token: string) {

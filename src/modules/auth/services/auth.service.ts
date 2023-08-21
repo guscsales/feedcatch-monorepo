@@ -5,16 +5,20 @@ import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { addDays, isBefore } from 'date-fns';
 import { JwtService } from '@nestjs/jwt';
 import { TokenTypes, User } from '@prisma/client';
+import { Resend } from 'resend';
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
+  private resend: Resend;
 
   constructor(
     private databaseService: DatabaseService,
     private userService: UserService,
     private jwtService: JwtService,
-  ) {}
+  ) {
+    this.resend = new Resend(process.env.EMAIL_PROVIDER_API_KEY);
+  }
 
   async authenticateFromMagicLink({ token }: { token: string }) {
     const data = await this.databaseService.userToken.findUnique({
@@ -64,7 +68,19 @@ export class AuthService {
       daysToExpire: 1,
     });
 
-    // TODO: send link to access using email
+    //     await this.resend.emails.send({
+    //       from: process.env.EMAIL_FROM_NO_REPLY,
+    //       to: email,
+    //       subject: 'You magic link for Feedcatch',
+    //       html: `Hello,
+
+    // your link is ready to use, to access click <a href="${process.env.APP_DOMAIN}/api/auth/magic/authenticate?token=${token}" target="_blank">here</a>.
+
+    // <strong>Feedcatch Team</strong>
+    //       `,
+    //     });
+
+    //     this.logger.log('Magic login email sent');
   }
 
   async reAuthenticateFromRefreshToken({ token }: { token: string }) {
