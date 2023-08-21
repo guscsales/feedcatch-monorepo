@@ -42,6 +42,7 @@ export class AuthValidationGuard implements CanActivate {
     try {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: process.env.AUTHENTICATION_SECRET,
+        clockTolerance: request.route.path === '/auth/refresh' ? 60 : 0,
       });
 
       const user = await this.userService.getById(payload.sub);

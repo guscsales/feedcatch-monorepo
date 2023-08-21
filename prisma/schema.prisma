@@ -4,8 +4,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model Project {
@@ -16,7 +17,7 @@ model Project {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  User   User?   @relation(fields: [userId], references: [id])
+  user   User?   @relation(fields: [userId], references: [id])
   userId String?
 
   @@map("projects")
@@ -28,19 +29,25 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  userMagicAuthentication UserMagicAuthentication?
-  projects                Project[]
+  userToken UserToken[]
+  projects  Project[]
 
   @@map("users")
 }
 
-model UserMagicAuthentication {
-  token     String   @id
+enum TokenTypes {
+  MagicLogin
+  Refresh
+}
+
+model UserToken {
+  token     String     @id
   expires   DateTime
-  createdAt DateTime @default(now())
+  type      TokenTypes
+  createdAt DateTime   @default(now())
 
-  user   User   @relation(fields: [userId], references: [id])
-  userId String @unique
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
 
-  @@map("userMagicAuthentications")
+  @@map("userTokens")
 }
