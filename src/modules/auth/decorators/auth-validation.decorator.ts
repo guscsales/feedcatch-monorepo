@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import { UserService } from '@/modules/users/services/user.service';
 import { Reflector } from '@nestjs/core';
 
 export const AUTH_VALIDATION_DISABLED = 'authValidationDisabled';
@@ -17,7 +16,6 @@ export const PublicRoute = () => SetMetadata(AUTH_VALIDATION_DISABLED, true);
 @Injectable()
 export class AuthValidationGuard implements CanActivate {
   constructor(
-    private userService: UserService,
     private jwtService: JwtService,
     private reflector: Reflector,
   ) {}
@@ -44,9 +42,9 @@ export class AuthValidationGuard implements CanActivate {
         secret: process.env.AUTHENTICATION_SECRET,
       });
 
-      const user = await this.userService.getById(payload.sub);
-
-      request['authUser'] = user;
+      request['authUser'] = {
+        userId: payload.sub,
+      };
     } catch {
       throw new UnauthorizedException();
     }

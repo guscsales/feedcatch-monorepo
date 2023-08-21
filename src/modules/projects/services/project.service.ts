@@ -9,23 +9,25 @@ export class ProjectService {
 
   constructor(private databaseService: DatabaseService) {}
 
-  async fetch() {
-    const items = await this.databaseService.project.findMany();
+  async fetch({ userId }: { userId: string }) {
+    const items = await this.databaseService.project.findMany({
+      where: { userId },
+    });
 
     return items;
   }
 
-  async getBySlug({ slug }: { slug: string }) {
+  async getBySlug(slug: string, { userId }: { userId: string }) {
     const data = await this.databaseService.project.findFirst({
-      where: { slug },
+      where: { slug, userId },
     });
 
     return data;
   }
 
-  async create({ name }: { name: string }) {
+  async create({ name, userId }: { name: string; userId: string }) {
     const slug = normalizeString(name);
-    const slugExists = await this.getBySlug({ slug });
+    const slugExists = await this.getBySlug(slug, { userId });
 
     if (slugExists) {
       const e = new NotAcceptableException('Project slug already exists');
@@ -53,6 +55,7 @@ export class ProjectService {
         name,
         slug,
         projectId,
+        userId,
       },
     });
 
@@ -61,9 +64,18 @@ export class ProjectService {
     return data;
   }
 
-  async update({ id, name }: { id: string; name: string }) {
+  async update(
+    id: string,
+    {
+      name,
+      userId,
+    }: {
+      name: string;
+      userId: string;
+    },
+  ) {
     const slug = normalizeString(name);
-    const slugExists = await this.getBySlug({ slug });
+    const slugExists = await this.getBySlug(slug, { userId });
 
     if (slugExists) {
       const e = new NotAcceptableException('Project slug already exists');
@@ -76,6 +88,7 @@ export class ProjectService {
       data: {
         name,
         slug,
+        userId,
       },
     });
 

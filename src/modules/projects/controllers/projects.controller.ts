@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Request,
 } from '@nestjs/common';
 import { ProjectService } from '@/modules/projects/services/project.service';
 import { SchemaValidator } from '@/modules/shared/decorators/schema-validator.decorator';
@@ -17,15 +18,19 @@ export class ProjectsController {
   constructor(private projectService: ProjectService) {}
 
   @Get()
-  public async fetch() {
-    const items = await this.projectService.fetch();
+  public async fetch(@Request() req) {
+    const items = await this.projectService.fetch({
+      userId: req.authUser.userId,
+    });
 
     return { items };
   }
 
   @Get('/slug/:slug')
-  public async getBySlug(@Param('slug') slug: string) {
-    const data = await this.projectService.getBySlug({ slug });
+  public async getBySlug(@Param('slug') slug: string, @Request() req) {
+    const data = await this.projectService.getBySlug(slug, {
+      userId: req.authUser.userId,
+    });
 
     if (!data) {
       throw new NotFoundException();
@@ -36,16 +41,26 @@ export class ProjectsController {
 
   @Post()
   @SchemaValidator(createProjectValidator)
-  public async create(@Body() payload) {
-    const data = await this.projectService.create(payload);
+  public async create(@Body() payload, @Request() req) {
+    const data = await this.projectService.create({
+      ...payload,
+      userId: req.authUser.userId,
+    });
 
     return data;
   }
 
   @Patch('/:id')
   @SchemaValidator(updateProjectValidator)
-  public async update(@Param('id') id: string, @Body() payload) {
-    const data = await this.projectService.update({ id, ...payload });
+  public async update(
+    @Param('id') id: string,
+    @Body() payload,
+    @Request() req,
+  ) {
+    const data = await this.projectService.update(id, {
+      ...payload,
+      userId: req.authUser.userId,
+    });
 
     return data;
   }

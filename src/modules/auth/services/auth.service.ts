@@ -71,13 +71,13 @@ export class AuthService {
     await this.resend.emails.send({
       from: `${process.env.EMAIL_FROM_TEAM_NAME} <${process.env.EMAIL_FROM_NO_REPLY}>`,
       to: email,
-      subject: 'You login access link for Feedcatch',
+      subject: 'You login access link for FeedCatch',
       // TODO: create a better email template
       html: `Hello,
 <br /><br />
 your link is ready to use, to access click <a href="${process.env.WEB_APP_DOMAIN}/api/auth/magic/authenticate?token=${token}" target="_blank">here</a>.
 <br /><br />
-<strong>Feedcatch Team</strong>
+<strong>FeedCatch Team</strong>
           `,
     });
 
