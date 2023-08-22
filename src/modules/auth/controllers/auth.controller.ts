@@ -20,7 +20,7 @@ export class AuthController {
 
   @PublicRoute()
   @Post('/magic/authenticate')
-  @SchemaValidator(authenticateFromMagicLinkValidator, 'query')
+  @SchemaValidator(authenticateFromMagicLinkValidator, ['query'])
   public async authenticateFromMagicLink(@Query('token') token: string) {
     const data = await this.authService.authenticateFromMagicLink({ token });
 

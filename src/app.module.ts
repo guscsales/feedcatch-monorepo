@@ -10,6 +10,7 @@ import { AuthModule } from '@/modules/auth/auth.module';
 import { UsersModule } from '@/modules/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthValidationGuard } from '@/modules/auth/decorators/auth-validation.decorator';
+import { FeedbacksModule } from './modules/feedbacks/feedbacks.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { AuthValidationGuard } from '@/modules/auth/decorators/auth-validation.d
     ProjectsModule,
     AuthModule,
     UsersModule,
+    FeedbacksModule,
   ],
   controllers: [AppController],
   providers: [

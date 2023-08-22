@@ -9,12 +9,12 @@ import { Reflector } from '@nestjs/core';
 
 const SCHEMA_VALIDATOR_KEY = 'schemaValidator';
 
-type ValidatorSources = 'body' | 'query' | 'params';
+type ValidatorSources = 'body' | 'query' | 'params' | 'headers';
 
 export const SchemaValidator = (
   schema: any,
-  validatorSource: ValidatorSources = 'body',
-) => SetMetadata(SCHEMA_VALIDATOR_KEY, { schema, validatorSource });
+  validatorSources: ValidatorSources[] = ['body'],
+) => SetMetadata(SCHEMA_VALIDATOR_KEY, { schema, validatorSources });
 
 @Injectable()
 export class SchemaValidatorGuard implements CanActivate {
@@ -30,14 +30,20 @@ export class SchemaValidatorGuard implements CanActivate {
       return true;
     }
 
-    const { schema: schemaToValidate, validatorSource } = schemaValidatorProps;
+    const { schema: schemaToValidate, validatorSources } = schemaValidatorProps;
 
     const http = context.switchToHttp();
     const req = http.getRequest();
     const res = http.getResponse();
 
     try {
-      schemaToValidate.parse(req[validatorSource]);
+      let payload = {};
+
+      validatorSources.forEach((validatorSource) => {
+        payload = { ...payload, ...req[validatorSource] };
+      });
+
+      schemaToValidate.parse(payload);
       return true;
     } catch (e) {
       res.status(StatusCodes.BadRequest).json({ errors: e?.issues || [] });

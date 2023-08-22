@@ -63,10 +63,11 @@ enum FeedbackTypes {
 }
 
 model Feedback {
-  id      String        @id @default(uuid())
-  type    FeedbackTypes
-  email   String?
-  content String
+  id        String        @id @default(uuid())
+  type      FeedbackTypes
+  email     String?
+  content   String
+  createdAt DateTime      @default(now())
 
   project   Project? @relation(fields: [projectId], references: [id])
   projectId String?
