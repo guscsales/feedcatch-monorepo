@@ -13,4 +13,6 @@ export const createFeedbackValidator = z.object({
   type: z.nativeEnum(FeedbackTypes, {
     required_error: ValidatorErrors.RequiredField,
   }),
+  url: z.string({ required_error: ValidatorErrors.RequiredField }).url(),
+  userAgent: z.string({ required_error: ValidatorErrors.RequiredField }),
 });

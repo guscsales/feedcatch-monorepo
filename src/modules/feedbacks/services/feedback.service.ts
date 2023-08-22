@@ -17,6 +17,8 @@ type CreateFeedbackParams = {
   userId: string;
   type: FeedbackTypes;
   content: string;
+  url: string;
+  userAgent: string;
   userEmail?: string;
 };
 
@@ -87,6 +89,8 @@ export class FeedbackService {
     userId,
     type,
     userEmail,
+    url,
+    userAgent,
   }: CreateFeedbackParams) {
     const project = await this.projectService.getById(projectId, { userId });
 
@@ -105,6 +109,8 @@ export class FeedbackService {
         email: userEmail,
         projectId,
         status: FeedbackStatuses.Open,
+        url,
+        userAgent,
       },
     });
 
