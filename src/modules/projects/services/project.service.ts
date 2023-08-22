@@ -25,6 +25,14 @@ export class ProjectService {
     return data;
   }
 
+  async getById(id: string, { userId }: { userId: string }) {
+    const data = await this.databaseService.project.findUnique({
+      where: { id, userId },
+    });
+
+    return data;
+  }
+
   async create({ name, userId }: { name: string; userId: string }) {
     const slug = normalizeString(name);
     const slugExists = await this.getBySlug(slug, { userId });

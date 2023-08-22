@@ -5,6 +5,7 @@ import { SharedModule } from '@/modules/shared/shared.module';
 
 @Module({
   imports: [SharedModule],
+  exports: [ProjectService],
   providers: [ProjectService],
   controllers: [ProjectsController],
 })
