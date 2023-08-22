@@ -6,6 +6,8 @@ import { addDays, isBefore } from 'date-fns';
 import { JwtService } from '@nestjs/jwt';
 import { TokenTypes, User } from '@prisma/client';
 import { Resend } from 'resend';
+import { MagicLink } from '@/templates/emails/magic-link';
+import { render } from '@react-email/render';
 
 @Injectable()
 export class AuthService {
@@ -72,13 +74,7 @@ export class AuthService {
       from: `${process.env.EMAIL_FROM_TEAM_NAME} <${process.env.EMAIL_FROM_NO_REPLY}>`,
       to: email,
       subject: 'You login access link for FeedCatch',
-      // TODO: create a better email template
-      html: `Hello,
-<br /><br />
-your link is ready to use, to access click <a href="${process.env.WEB_APP_DOMAIN}/api/auth/magic/authenticate?token=${token}" target="_blank">here</a>.
-<br /><br />
-<strong>FeedCatch Team</strong>
-          `,
+      html: render(MagicLink({ token })),
     });
 
     this.logger.log('Magic login email sent');
