@@ -1,8 +1,18 @@
 import { SchemaValidator } from '@/modules/shared/decorators/schema-validator.decorator';
-import { Body, Controller, Get, Post, Query, Request } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Request,
+} from '@nestjs/common';
 import { searchFeedbacksValidator } from '@/modules/feedbacks/validators/search-feedbacks.validator';
 import { FeedbackService } from '@/modules/feedbacks/services/feedback.service';
 import { createFeedbackValidator } from '@/modules/feedbacks/validators/create-feedback.validator';
+import { updateFeedbackStatusValidator } from '../validators/update-feedback-status.validator';
 
 @Controller('feedbacks')
 export class FeedbacksController {
@@ -39,5 +49,22 @@ export class FeedbacksController {
     });
 
     return data;
+  }
+
+  @Patch(':id/status')
+  @SchemaValidator(updateFeedbackStatusValidator, ['body', 'headers'])
+  async updateFeedbackStatus(
+    @Param('id') id: string,
+    @Body() { status },
+    @Request() req,
+  ) {
+    const projectId = req.headers['fc-project-id'];
+    const userId = req.authUser.userId;
+
+    await this.feedbackService.updateStatus(id, {
+      userId,
+      projectId,
+      status,
+    });
   }
 }

@@ -62,12 +62,19 @@ enum FeedbackTypes {
   Other
 }
 
+enum FeedbackStatuses {
+  Open
+  InReview
+  Archived
+}
+
 model Feedback {
-  id        String        @id @default(uuid())
+  id        String            @id @default(uuid())
   type      FeedbackTypes
+  status    FeedbackStatuses? @default(Open)
   email     String?
   content   String
-  createdAt DateTime      @default(now())
+  createdAt DateTime          @default(now())
 
   project   Project? @relation(fields: [projectId], references: [id])
   projectId String?

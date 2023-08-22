@@ -1,12 +1,13 @@
 import { ProjectService } from '@/modules/projects/services/project.service';
 import { DatabaseService } from '@/modules/shared/database/database.service';
 import { Injectable, Logger, NotAcceptableException } from '@nestjs/common';
-import { FeedbackTypes } from '@prisma/client';
+import { FeedbackStatuses, FeedbackTypes } from '@prisma/client';
 import { set, subDays } from 'date-fns';
 
 type FetchFromProjectIdFilters = {
   search?: string;
   type?: FeedbackTypes;
+  status?: FeedbackStatuses;
   startDate?: Date;
   endDate?: Date;
 };
@@ -17,6 +18,12 @@ type CreateFeedbackParams = {
   type: FeedbackTypes;
   content: string;
   userEmail?: string;
+};
+
+type UpdateFeedbackStatusParams = {
+  projectId: string;
+  userId: string;
+  status: FeedbackStatuses;
 };
 
 const defaultFilters: FetchFromProjectIdFilters = {
@@ -46,7 +53,7 @@ export class FeedbackService {
     projectId: string,
     { filters }: { filters: FetchFromProjectIdFilters },
   ) {
-    const { search, startDate, endDate, type } = {
+    const { search, startDate, endDate, type, status } = {
       ...defaultFilters,
       ...filters,
     };
@@ -63,6 +70,7 @@ export class FeedbackService {
             }
           : {}),
         type,
+        status,
         createdAt: { gte: startDate, lte: endDate },
       },
       orderBy: {
@@ -96,10 +104,37 @@ export class FeedbackService {
         type,
         email: userEmail,
         projectId,
+        status: FeedbackStatuses.Open,
       },
     });
 
     this.logger.log('Feedback created');
+
+    return data;
+  }
+
+  async updateStatus(
+    id: string,
+    { projectId, userId, status }: UpdateFeedbackStatusParams,
+  ) {
+    const project = await this.projectService.getById(projectId, { userId });
+
+    if (!project) {
+      const e = new NotAcceptableException('Invalid project');
+      this.logger.error(e.message);
+      throw e;
+    }
+
+    this.logger.log('Found a project for passed id');
+
+    const data = await this.databaseService.feedback.update({
+      where: { id },
+      data: {
+        status,
+      },
+    });
+
+    this.logger.log('Feedback status updated');
 
     return data;
   }
