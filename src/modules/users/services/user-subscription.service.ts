@@ -1,3 +1,4 @@
+import { subscriptionsDataMapper } from '@/data/subscriptions-data-mapper';
 import { DatabaseService } from '@/modules/shared/database/database.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { SubscriptionTypes } from '@prisma/client';
@@ -7,6 +8,23 @@ export class UserSubscriptionService {
   private readonly logger = new Logger(UserSubscriptionService.name);
 
   constructor(private databaseService: DatabaseService) {}
+
+  async getFromUserId(userId: string) {
+    const data = await this.databaseService.userSubscription.findFirst({
+      where: {
+        userId,
+        active: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return {
+      ...data,
+      subscriptionDetails: subscriptionsDataMapper[data.subscriptionType],
+    };
+  }
 
   async createAsNonActive(
     userId: string,

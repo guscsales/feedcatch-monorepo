@@ -1,3 +1,4 @@
+import { subscriptionsDataMapper } from '@/data/subscriptions-data-mapper';
 import { UserSubscriptionService } from '@/modules/users/services/user-subscription.service';
 import { UserService } from '@/modules/users/services/user.service';
 import SubscriptionActivated from '@/templates/emails/subscription-activated';
@@ -11,15 +12,6 @@ import { SubscriptionTypes } from '@prisma/client';
 import { render } from '@react-email/render';
 import { Resend } from 'resend';
 import Stripe from 'stripe';
-
-const subscriptionsMapper = {
-  [SubscriptionTypes.Pro]: {
-    type: SubscriptionTypes.Pro,
-    name: 'FeedCatch Pro',
-    lineItemId: 'li_1NiHntC5qal6Clj2tOyPMDok',
-    priceId: 'price_1NhxyYC5qal6Clj2XDUXPVAs',
-  },
-};
 
 @Injectable()
 export class CheckoutService {
@@ -45,7 +37,7 @@ export class CheckoutService {
       customer: user.customerId,
       line_items: [
         {
-          price: subscriptionsMapper[SubscriptionTypes.Pro].priceId,
+          price: subscriptionsDataMapper[SubscriptionTypes.Pro].priceId,
           quantity: 1,
         },
       ],
@@ -143,7 +135,8 @@ export class CheckoutService {
           subject: 'Your FeedCatch subscription confirmation',
           html: render(
             SubscriptionActivated({
-              product: subscriptionsMapper[subscription.subscriptionType].name,
+              product:
+                subscriptionsDataMapper[subscription.subscriptionType].name,
               price: session.plan.amount,
               startedAt: new Date(session.start_date * 1000),
             }),

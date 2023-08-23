@@ -1,11 +1,16 @@
 import { DatabaseService } from '@/modules/shared/database/database.service';
 import { Injectable, Logger, NotAcceptableException } from '@nestjs/common';
+import { UserSubscriptionService } from './user-subscription.service';
+import { SubscriptionTypes } from '@prisma/client';
 
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
 
-  constructor(private databaseService: DatabaseService) {}
+  constructor(
+    private databaseService: DatabaseService,
+    private userSubscriptionService: UserSubscriptionService,
+  ) {}
 
   async getByEmail(email: string) {
     const data = await this.databaseService.user.findUnique({
@@ -73,6 +78,10 @@ export class UserService {
         email,
         customerId,
       },
+    });
+    await this.userSubscriptionService.createAsNonActive(data.id, {
+      type: SubscriptionTypes.Free,
+      customerId: data.customerId,
     });
 
     return data;

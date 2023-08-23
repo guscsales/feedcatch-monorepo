@@ -1,7 +1,13 @@
+import { subscriptionsDataMapper } from '@/data/subscriptions-data-mapper';
 import { ProjectService } from '@/modules/projects/services/project.service';
 import { DatabaseService } from '@/modules/shared/database/database.service';
+import { UserSubscriptionService } from '@/modules/users/services/user-subscription.service';
 import { Injectable, Logger, NotAcceptableException } from '@nestjs/common';
-import { FeedbackStatuses, FeedbackTypes } from '@prisma/client';
+import {
+  FeedbackStatuses,
+  FeedbackTypes,
+  SubscriptionTypes,
+} from '@prisma/client';
 import { set, subDays } from 'date-fns';
 
 type FetchFromProjectIdFilters = {
@@ -49,6 +55,7 @@ export class FeedbackService {
   constructor(
     private databaseService: DatabaseService,
     private projectService: ProjectService,
+    private userSubscriptionService: UserSubscriptionService,
   ) {}
 
   async fetchFromProjectId(
@@ -100,9 +107,17 @@ export class FeedbackService {
       throw e;
     }
 
-    // TODO: Validate subscription plan here
-
     this.logger.log('Found a project for passed id');
+
+    const canCreateFeedback = await this.canCreateFeedback(userId);
+
+    if (!canCreateFeedback) {
+      const e = new NotAcceptableException(
+        'You reach the limit of feedbacks on free, update to a paid plan to have unlimited.',
+      );
+      this.logger.error(e.message);
+      throw e;
+    }
 
     const data = await this.databaseService.feedback.create({
       data: {
@@ -145,5 +160,27 @@ export class FeedbackService {
     this.logger.log('Feedback status updated');
 
     return data;
+  }
+
+  async canCreateFeedback(userId: string) {
+    const { subscriptionType } =
+      await this.userSubscriptionService.getFromUserId(userId);
+
+    const feedbacksCount = await this.databaseService.feedback.count({
+      where: {
+        project: {
+          userId,
+        },
+      },
+    });
+
+    if (subscriptionType === SubscriptionTypes.Pro) {
+      return true;
+    }
+
+    return (
+      feedbacksCount <=
+      subscriptionsDataMapper[subscriptionType].features.feedbacksLimit
+    );
   }
 }
