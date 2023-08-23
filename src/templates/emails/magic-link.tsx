@@ -14,7 +14,7 @@ export function MagicLink({ token }: Props) {
   const href = `${process.env.WEB_APP_DOMAIN}/api/auth/magic/authenticate?token=${token}`;
 
   return (
-    <EmailBaseTemplate preview="Hey! Ready to login?">
+    <EmailBaseTemplate title="Your login link" preview="Hey! Ready to login?">
       <Text style={{ ...paragraphStyle, marginBottom: '20px' }}>
         Hey there,
       </Text>

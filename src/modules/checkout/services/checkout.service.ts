@@ -1,5 +1,6 @@
 import { UserSubscriptionService } from '@/modules/users/services/user-subscription.service';
 import { UserService } from '@/modules/users/services/user.service';
+import SubscriptionActivated from '@/templates/emails/subscription-activated';
 import {
   BadRequestException,
   Injectable,
@@ -7,11 +8,14 @@ import {
   Logger,
 } from '@nestjs/common';
 import { SubscriptionTypes } from '@prisma/client';
+import { render } from '@react-email/render';
+import { Resend } from 'resend';
 import Stripe from 'stripe';
 
-const subscriptionPricesMapper = {
+const subscriptionsMapper = {
   [SubscriptionTypes.Pro]: {
     type: SubscriptionTypes.Pro,
+    name: 'FeedCatch Pro',
     lineItemId: 'li_1NiHntC5qal6Clj2tOyPMDok',
     priceId: 'price_1NhxyYC5qal6Clj2XDUXPVAs',
   },
@@ -21,12 +25,14 @@ const subscriptionPricesMapper = {
 export class CheckoutService {
   private readonly logger = new Logger(CheckoutService.name);
 
+  private resend: Resend;
   private stripe: Stripe;
 
   constructor(
     private userService: UserService,
     private userSubscriptionService: UserSubscriptionService,
   ) {
+    this.resend = new Resend(process.env.EMAIL_PROVIDER_API_KEY);
     this.stripe = new Stripe(process.env.PAYMENT_PROVIDER_SECRET_KEY, {
       apiVersion: '2023-08-16',
     });
@@ -39,7 +45,7 @@ export class CheckoutService {
       customer: user.customerId,
       line_items: [
         {
-          price: subscriptionPricesMapper[SubscriptionTypes.Pro].priceId,
+          price: subscriptionsMapper[SubscriptionTypes.Pro].priceId,
           quantity: 1,
         },
       ],
@@ -121,14 +127,30 @@ export class CheckoutService {
         await this.userSubscriptionService.disableAllUserSubscriptions(
           session.customer,
         );
-        this.userSubscriptionService.updateStatusFromCustomerId(
-          session.customer,
-          { active: session.status === 'active' },
-        );
+        const subscription =
+          await this.userSubscriptionService.updateStatusFromCustomerId(
+            session.customer,
+            { active: session.status === 'active' },
+          );
 
         this.logger.log(`Subscription status is ${status}.`);
-        // Then define and call a method to handle the subscription update.
-        // handleSubscriptionUpdated(subscription);
+
+        const user = await this.userService.getByCustomerId(session.customer);
+
+        await this.resend.emails.send({
+          from: `${process.env.EMAIL_FROM_TEAM_NAME} <${process.env.EMAIL_FROM_NO_REPLY}>`,
+          to: user.email,
+          subject: 'Your FeedCatch subscription confirmation',
+          html: render(
+            SubscriptionActivated({
+              product: subscriptionsMapper[subscription.subscriptionType].name,
+              price: session.plan.amount,
+              startedAt: new Date(session.start_date * 1000),
+            }),
+          ),
+        });
+
+        this.logger.log('Subscription email sent');
         break;
     }
   }

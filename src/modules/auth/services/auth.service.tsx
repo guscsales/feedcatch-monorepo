@@ -85,7 +85,7 @@ export class AuthService {
     await this.resend.emails.send({
       from: `${process.env.EMAIL_FROM_TEAM_NAME} <${process.env.EMAIL_FROM_NO_REPLY}>`,
       to: email,
-      subject: 'You login access link for FeedCatch',
+      subject: 'Your login access link for FeedCatch',
       html: render(MagicLink({ token })),
     });
 

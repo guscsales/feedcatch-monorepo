@@ -100,6 +100,8 @@ export class FeedbackService {
       throw e;
     }
 
+    // TODO: Validate subscription plan here
+
     this.logger.log('Found a project for passed id');
 
     const data = await this.databaseService.feedback.create({
