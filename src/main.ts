@@ -5,7 +5,7 @@ import { nestCsrf } from 'ncsrf';
 import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { rawBody: true });
 
   app.use(helmet());
   app.use(cookieParser());

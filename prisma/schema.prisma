@@ -9,14 +9,20 @@ datasource db {
   relationMode = "prisma"
 }
 
-model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum SubscriptionTypes {
+  Pro
+}
 
-  userToken UserToken[]
-  projects  Project[]
+model User {
+  id         String   @id @default(uuid())
+  email      String   @unique
+  customerId String   @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  userToken         UserToken[]
+  projects          Project[]
+  userSubscriptions UserSubscription[]
 
   @@map("users")
 }
@@ -36,6 +42,21 @@ model UserToken {
   userId String?
 
   @@map("userTokens")
+}
+
+model UserSubscription {
+  id               String            @id @default(uuid())
+  subscriptionType SubscriptionTypes
+  customerId       String
+  subscriptionId   String?
+  active           Boolean
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  User   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  @@map("userSubscriptions")
 }
 
 model Project {

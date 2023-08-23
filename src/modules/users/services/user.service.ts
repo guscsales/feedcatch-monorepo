@@ -16,17 +16,53 @@ export class UserService {
   }
 
   async getById(id: string) {
+    const [user, userSubscription] = await Promise.all([
+      this.databaseService.user.findUnique({
+        where: { id },
+      }),
+      this.databaseService.userSubscription.findFirst({
+        where: {
+          userId: id,
+          active: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+    ]);
+
+    return { ...user, subscriptionType: userSubscription?.subscriptionType };
+  }
+
+  async getByCustomerId(customerId: string) {
     const data = await this.databaseService.user.findUnique({
-      where: { id },
+      where: { customerId },
     });
 
     return data;
   }
 
-  async createOnlyWithEmail({ email }: { email: string }) {
-    const userExists = await this.getByEmail(email);
+  async userExists(id: string) {
+    const userCount = await this.databaseService.user.count({
+      where: { id },
+    });
 
-    if (userExists) {
+    return userCount > 0;
+  }
+
+  async createFromEmail({
+    email,
+    customerId,
+  }: {
+    email: string;
+    customerId: string;
+  }) {
+    const [userEmailExists, userCustomerIdExists] = await Promise.all([
+      this.getByEmail(email),
+      this.getByCustomerId(customerId),
+    ]);
+
+    if (userEmailExists || userCustomerIdExists) {
       const e = new NotAcceptableException('User email already exists');
       this.logger.error(e.message);
       throw e;
@@ -35,6 +71,7 @@ export class UserService {
     const data = await this.databaseService.user.create({
       data: {
         email,
+        customerId,
       },
     });
 

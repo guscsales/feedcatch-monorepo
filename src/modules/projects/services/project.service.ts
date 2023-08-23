@@ -2,12 +2,16 @@ import { DatabaseService } from '@/modules/shared/database/database.service';
 import { Injectable, Logger, NotAcceptableException } from '@nestjs/common';
 import rand from '@/helpers/services/rand';
 import normalizeString from '@/helpers/services/normalize-string';
+import { UserService } from '@/modules/users/services/user.service';
 
 @Injectable()
 export class ProjectService {
   private readonly logger = new Logger(ProjectService.name);
 
-  constructor(private databaseService: DatabaseService) {}
+  constructor(
+    private databaseService: DatabaseService,
+    private userService: UserService,
+  ) {}
 
   async fetch({ userId }: { userId: string }) {
     const items = await this.databaseService.project.findMany({
@@ -34,6 +38,14 @@ export class ProjectService {
   }
 
   async create({ name, userId }: { name: string; userId: string }) {
+    const userExists = await this.userService.userExists(userId);
+
+    if (!userExists) {
+      const e = new NotAcceptableException('User not exists');
+      this.logger.error(e.message);
+      throw e;
+    }
+
     const slug = normalizeString(name);
     const slugExists = await this.getBySlug(slug, { userId });
 

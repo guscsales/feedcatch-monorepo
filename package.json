@@ -41,6 +41,7 @@
     "reflect-metadata": "^0.1.13",
     "resend": "^1.0.0",
     "rxjs": "^7.8.1",
+    "stripe": "^13.2.0",
     "zod": "^3.22.2"
   },
   "devDependencies": {

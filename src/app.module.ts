@@ -11,6 +11,7 @@ import { UsersModule } from '@/modules/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthValidationGuard } from '@/modules/auth/decorators/auth-validation.decorator';
 import { FeedbacksModule } from './modules/feedbacks/feedbacks.module';
+import { CheckoutModule } from './modules/checkout/checkout.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { FeedbacksModule } from './modules/feedbacks/feedbacks.module';
     AuthModule,
     UsersModule,
     FeedbacksModule,
+    CheckoutModule,
   ],
   controllers: [AppController],
   providers: [

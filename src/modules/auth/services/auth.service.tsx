@@ -8,11 +8,13 @@ import { TokenTypes, User } from '@prisma/client';
 import { Resend } from 'resend';
 import { MagicLink } from '@/templates/emails/magic-link';
 import { render } from '@react-email/render';
+import Stripe from 'stripe';
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
   private resend: Resend;
+  private stripe: Stripe;
 
   constructor(
     private databaseService: DatabaseService,
@@ -20,6 +22,9 @@ export class AuthService {
     private jwtService: JwtService,
   ) {
     this.resend = new Resend(process.env.EMAIL_PROVIDER_API_KEY);
+    this.stripe = new Stripe(process.env.PAYMENT_PROVIDER_SECRET_KEY, {
+      apiVersion: '2023-08-16',
+    });
   }
 
   async authenticateFromMagicLink({ token }: { token: string }) {
@@ -59,7 +64,14 @@ export class AuthService {
         this.logger.log(`User ${user.id} delete token that already exists`);
       }
     } else {
-      user = await this.userService.createOnlyWithEmail({ email });
+      const customer = await this.stripe.customers.create({ email });
+
+      this.logger.log(`User (customer) created on payment provider`);
+
+      user = await this.userService.createFromEmail({
+        email,
+        customerId: customer.id,
+      });
 
       this.logger.log(`User ${user.id} created from magic link`);
     }
