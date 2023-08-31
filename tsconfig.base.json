@@ -16,6 +16,7 @@
     "baseUrl": ".",
     "paths": {
       "@app/*": ["./apps/feedcatch-web-app/*"],
+      "@email/*": ["./libs/react-email/*"],
       "@services/*": ["./apps/feedcatch-services/*"]
     }
   },

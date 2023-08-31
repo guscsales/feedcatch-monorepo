@@ -1,7 +1,7 @@
 import { subscriptionsDataMapper } from '@services/src/app/metadata/subscriptions-data-mapper';
 import { UserSubscriptionService } from '@services/src/app/modules/users/services/user-subscription.service';
 import { UserService } from '@services/src/app/modules/users/services/user.service';
-import SubscriptionActivated from '@services/src/app/templates/emails/subscription-activated';
+import SubscriptionActivated from '@email/emails/subscription-activated';
 import {
   BadRequestException,
   Injectable,
@@ -139,6 +139,7 @@ export class CheckoutService {
                 subscriptionsDataMapper[subscription.subscriptionType].name,
               price: session.plan.amount,
               startedAt: new Date(session.start_date * 1000),
+              webAppDomain: process.env.WEB_APP_DOMAIN,
             })
           ),
         });
