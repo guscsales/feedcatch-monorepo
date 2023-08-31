@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "start:services": "nx run feedcatch-services",
     "build:services": "pnpm db:push && nx build feedcatch-services --prod",
     "run:app": "nx serve feedcatch-web-app",
     "run:services": "nx serve feedcatch-services",

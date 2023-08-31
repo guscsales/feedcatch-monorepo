@@ -4,6 +4,12 @@
   "sourceRoot": "apps/feedcatch-services/src",
   "projectType": "application",
   "targets": {
+    "start": {
+      "command": "node main.js",
+      "options": {
+        "cwd": "dist/apps/feedcatch-services"
+      }
+    },
     "build": {
       "executor": "@nx/webpack:webpack",
       "outputs": ["{options.outputPath}"],
