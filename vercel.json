@@ -8,7 +8,7 @@
   ],
   "routes": [
     {
-      "src": "apps/feedcatch-services/(.*)",
+      "src": "/(.*)",
       "dest": "apps/feedcatch-services/src/main.ts",
       "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"]
     }
