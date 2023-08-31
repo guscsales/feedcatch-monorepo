@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "build:services": "pnpm db:push && nx build feedcatch-services --prod",
     "run:app": "nx serve feedcatch-web-app",
     "run:services": "nx serve feedcatch-services",
     "run:db": "pscale connect feedcatch_main develop --port 3309",
@@ -10,7 +11,6 @@
     "run:email": "nx run react-email:serve",
     "test:app": "nx test feedcatch-web-app",
     "db": "nx run database:prisma",
-    "db:up": "nx run database:compose",
     "db:push": "nx run database:push && pnpm db:generate",
     "db:create-migration": "nx run database:create-migration",
     "db:generate": "nx run database:generate",

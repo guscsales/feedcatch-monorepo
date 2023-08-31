@@ -40,12 +40,6 @@
       "options": {
         "cwd": "database"
       }
-    },
-    "compose": {
-      "command": "docker-compose up",
-      "options": {
-        "cwd": "database"
-      }
     }
   },
   "tags": []
