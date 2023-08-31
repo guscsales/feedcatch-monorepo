@@ -1,0 +1,7 @@
+{
+  "name": "feedcatch-statics",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/feedcatch-statics/src",
+  "projectType": "application",
+  "tags": []
+}
